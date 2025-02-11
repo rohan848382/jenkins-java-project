@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/rohan848382/jenkins-java-project.git'
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Verify Artifact') {
+            steps {
+                sh 'ls -l target/'  // Check if the war file exists
+            }
+        }
+        stage('Upload Artifact') {
+            steps {
+                nexusArtifactUploader(
+                    artifacts: [[artifactId: 'NETFLIX', classifier: '', file: 'target/NETFLIX-1.2.2.war', type: '.war']],
+                    credentialsId: 'a02dd950-2f19-4e90-bf37-c8717789dcdc',
+                    groupId: 'in.RAHAM',
+                    nexusUrl: '13.232.193.162:8081',
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    repository: 'rohan',  // Ensure this matches Nexus config
+                    version: '1.2.2'
+                )
+            }
+        }
+    }
+}
